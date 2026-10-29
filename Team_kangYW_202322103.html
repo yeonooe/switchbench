@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwitchBench: 실행 중 음성 명령 전환 챌린지</title>
+<meta name="description" content="작업 중인 로봇에게 다른 일을 시키면, 로봇은 바꿀 수 있을까? LIBERO-Goal 기반 음성 명령 전환 챌린지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --espresso:#1D1915; --roast:#2B2520; --bean:#66543A; --cream:#EEEAD3; --paper:#F3F0DF;
+  --ink:#211C17; --ink-soft:#5B5046; --faded:#5A4E44;
+  --line-dark:rgba(238,234,211,.28); --line-light:rgba(33,28,23,.32);
+  --olive:#5F6B2C; --olive-light:#AEBB6A; --olive-tint:rgba(174,187,106,.16); --rust:#C9784A;
+  --sans:"Inter","Noto Sans KR",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --gut:clamp(16px,5vw,80px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.65 var(--sans);letter-spacing:.015em;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+a{color:inherit;text-decoration-color:var(--olive);text-underline-offset:3px}
+.dark a,.brown a{text-decoration-color:var(--olive-light)}
+:focus-visible{outline:1px solid currentColor;outline-offset:4px}
+code,pre{font-family:var(--mono);font-size:.84em;letter-spacing:0}
+code{padding:.05em .3em;border:1px solid var(--line-light)}
+.dark code{border-color:var(--line-dark)}
+p{margin:0 0 14px;max-width:66ch}
+b{font-weight:500}
+
+/* surfaces */
+.dark{background:var(--espresso);color:var(--cream)}
+.brown{background:var(--bean);color:var(--cream)}
+.cream{background:var(--paper);color:var(--ink)}
+.muted{color:var(--ink-soft)}
+.dark .muted,.brown .muted{color:rgba(238,234,211,.7)}
+.in{padding-left:var(--gut);padding-right:var(--gut)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:10;background:rgba(29,25,21,.88);backdrop-filter:blur(10px);color:var(--cream)}
+.nav-in{display:flex;align-items:center;gap:clamp(16px,3vw,44px);height:64px;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.brand{font-weight:500;font-size:1.15rem;letter-spacing:-.03em;text-decoration:none;margin-right:auto}
+.brand sup{font-size:.55em;margin-left:1px}
+.nav a:not(.brand){text-decoration:none;font-size:.9rem;font-weight:500;opacity:.85}
+.nav a:not(.brand):hover{opacity:1}
+
+/* display type */
+.display{font-weight:400;letter-spacing:-.045em;line-height:.92;margin:0}
+h2.display{font-size:clamp(2.8rem,8vw,6.4rem);padding:clamp(56px,8vw,110px) 0 clamp(28px,4vw,48px)}
+h3{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:400;letter-spacing:-.03em;line-height:1.15;margin:0 0 12px}
+.eyebrow{font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--espresso);color:var(--cream);isolation:isolate}
+.hero::before{content:"";position:absolute;inset:-10%;z-index:-1;transform:scaleX(1.8);filter:blur(34px);
+  background:
+   radial-gradient(ellipse 18% 14% at 18% 10%,rgba(170,160,150,.55),transparent 70%),
+   radial-gradient(ellipse 22% 16% at 40% 34%,rgba(120,98,78,.55),transparent 70%),
+   radial-gradient(ellipse 20% 12% at 62% 22%,rgba(60,48,40,.9),transparent 70%),
+   radial-gradient(ellipse 22% 18% at 30% 72%,rgba(130,104,78,.5),transparent 70%),
+   radial-gradient(ellipse 18% 16% at 58% 66%,rgba(150,124,96,.45),transparent 70%),
+   radial-gradient(ellipse 20% 14% at 82% 88%,rgba(110,88,70,.5),transparent 70%),
+   radial-gradient(ellipse 16% 12% at 84% 44%,rgba(90,74,62,.6),transparent 70%)}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.35;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 7px)}
+.hrow{position:relative;margin:0 calc(-1 * var(--gut));padding:0 var(--gut);display:grid;grid-template-columns:1fr 1fr;align-items:end;border-top:1px solid var(--line-dark);min-height:clamp(96px,15vw,220px)}
+.hrow:first-of-type{border-top:0}
+.hrow .word{font-size:clamp(4rem,14vw,13rem);font-weight:400;letter-spacing:-.05em;line-height:.8;padding-bottom:clamp(6px,1vw,14px);white-space:nowrap}
+.hrow .r{grid-column:2;justify-self:end;text-align:right}
+.hrow .l{grid-column:1}
+.hrow .span{grid-column:1/-1}
+.burst{position:absolute;left:41%;top:50%;transform:translate(-50%,-50%);width:clamp(96px,13vw,200px);color:var(--olive-light);z-index:2}
+.burst svg{display:block;width:100%;height:auto;animation:spin 40s linear infinite}
+.burst span{position:absolute;inset:0;display:grid;place-items:center;color:var(--espresso);font-size:clamp(.6rem,.95vw,.9rem);font-weight:500;letter-spacing:.04em}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.burst svg{animation:none}}
+@media (max-width:640px){.hrow{grid-template-columns:1fr;min-height:0;padding-top:10px;padding-bottom:14px;align-items:start}.hrow .r,.hrow .l{grid-column:1}.hrow .word{font-size:clamp(3rem,17vw,5rem);line-height:.95;padding-bottom:0}.hrow .r{justify-self:end}.burst{display:none}}
+
+/* intro */
+.intro{padding-top:clamp(64px,9vw,120px);padding-bottom:clamp(48px,7vw,96px)}
+.intro .statement{font-size:clamp(2.1rem,5.6vw,4.6rem);font-weight:400;letter-spacing:-.02em;line-height:1.05;margin:0 0 clamp(36px,5vw,64px);max-width:20ch}
+.inline-burst{display:inline-block;width:.78em;height:.78em;vertical-align:-.04em;color:var(--olive-light)}
+.inline-burst svg{width:100%;height:100%}
+.intro-cols{display:grid;grid-template-columns:1fr minmax(0,460px);gap:32px}
+.intro-cols .text{grid-column:2;font-size:.98rem}
+@media (max-width:760px){.intro-cols{grid-template-columns:1fr}.intro-cols .text{grid-column:1}}
+
+/* figure */
+.fig{margin:clamp(40px,6vw,72px) 0 0;border-top:1px solid var(--line-dark);padding-top:24px}
+.fig-scroll{overflow-x:auto}
+.fig svg{width:100%;min-width:620px;height:auto;display:block}
+.fig figcaption{font-size:.9rem;margin-top:20px}
+.stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-dark)}
+.stats li{padding:16px 16px 4px 0;display:flex;flex-direction:column;gap:6px}
+.stats li+li{padding-left:16px;border-left:1px solid var(--line-dark)}
+.stats .num{font-size:clamp(1.8rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1;color:var(--olive-light)}
+.stats .lbl{font-size:.88rem}
+.stats em{font-style:normal;opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
+.stats-src{display:block;margin-top:12px;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){.stats{grid-template-columns:1fr}.stats li+li{padding-left:0;border-left:0;border-top:1px solid var(--line-dark)}}
+.scroll-hint{display:none;font-size:.8rem;margin-bottom:6px}
+@media (max-width:640px){.scroll-hint{display:block}}
+
+/* buttons */
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 4px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border:1px solid currentColor;font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:background .15s,color .15s}
+.btn::after{content:"→";font-size:1.05em;letter-spacing:0}
+.btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dark .btn:hover,.brown .btn:hover{background:var(--cream);color:var(--espresso);border-color:var(--cream)}
+.btn.solid,.dark .btn.solid,.brown .btn.solid{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.btn.solid:hover,.dark .btn.solid:hover,.brown .btn.solid:hover{background:var(--cream);color:var(--olive);border-color:var(--olive)}
+.cream .btn.solid:hover{background:var(--paper)}
+
+/* hairline rows */
+.rows{border-top:1px solid var(--line-light);margin:0 calc(-1 * var(--gut))}
+.dark .rows,.brown .rows{border-color:var(--line-dark)}
+.row{display:grid;grid-template-columns:minmax(150px,1fr) 2fr;gap:24px;padding:20px var(--gut);border-bottom:1px solid var(--line-light);align-items:baseline}
+.dark .row,.brown .row{border-color:var(--line-dark)}
+.row .k{font-size:.8rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.row p{margin:0}
+a.row{text-decoration:none;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 24px}
+a.row .v{font-family:var(--mono);font-size:.82rem;opacity:.8;overflow-wrap:anywhere}
+a.row::after{content:"→";justify-self:end}
+a.row:hover{background:rgba(33,28,23,.05)}
+.brown a.row:hover,.dark a.row:hover{background:rgba(238,234,211,.06)}
+@media (max-width:640px){.row{grid-template-columns:1fr;gap:6px}a.row{grid-template-columns:1fr 20px}a.row .v{grid-column:1}a.row::after{grid-row:1;grid-column:2}}
+
+/* card grid (task types) */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-dark);margin:0 calc(-1 * var(--gut))}
+.card{min-height:clamp(260px,26vw,360px);padding:clamp(22px,2.6vw,36px);border-right:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark);display:flex;flex-direction:column;justify-content:space-between;gap:28px}
+.card:last-child{border-right:0}
+.card .t{font-size:clamp(2rem,3.6vw,3rem);font-weight:400;letter-spacing:-.04em;line-height:1}
+.card .n{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;opacity:.7;margin-top:10px}
+.card p{font-size:.95rem;margin:0}
+.card.alt{background:var(--roast)}
+@media (max-width:760px){.cards,.cards.two{grid-template-columns:minmax(0,1fr)}.card{border-right:0;min-height:200px}}
+
+.cards.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* two-column split */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-top:1px solid var(--line-light);margin:0 calc(-1 * var(--gut))}
+.split>div{padding:clamp(28px,3.4vw,48px) var(--gut)}
+.split>div+div{border-left:1px solid var(--line-light)}
+.split ul{padding-left:18px;margin:10px 0 0}
+.split li{margin:6px 0}
+@media (max-width:760px){.split{grid-template-columns:minmax(0,1fr)}.split>div+div{border-left:0;border-top:1px solid var(--line-light)}}
+
+/* tables */
+.tbl{overflow-x:auto;margin:0 calc(-1 * var(--gut))}
+table{border-collapse:collapse;width:100%;font-size:.94rem}
+th,td{text-align:left;padding:16px 14px;border-bottom:1px solid var(--line-light);vertical-align:top}
+th:first-child,td:first-child{padding-left:var(--gut)}
+th:last-child,td:last-child{padding-right:var(--gut)}
+thead th{border-top:1px solid var(--line-light);font-size:.74rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.brown th,.brown td,.dark th,.dark td{border-color:var(--line-dark)}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.lb td,.lb th{white-space:nowrap}
+.lb td.m{white-space:normal;min-width:190px;text-transform:uppercase;letter-spacing:.04em;font-size:.86rem}
+.lb .score{font-size:1.6rem;letter-spacing:-.03em;line-height:1}
+.lb tr.pending td{opacity:.55}
+.tag{display:block;margin-top:6px;font-size:.68rem;letter-spacing:.1em;opacity:.75}
+
+/* olive accents */
+.olive{color:var(--olive)}
+.dark .olive,.brown .olive{color:var(--olive-light)}
+.card.olive-card{background:var(--olive);color:var(--cream)}
+.lb tr.ours td{background:var(--olive)}
+.lb tr.ours td:first-child{box-shadow:inset 3px 0 0 var(--olive-light)}
+.marquee svg{color:var(--olive)}
+.nav a:not(.brand):hover{text-decoration:underline;text-decoration-color:var(--olive-light);text-underline-offset:6px}
+/* formula, code */
+.formula{font-size:clamp(2.2rem,6vw,5rem);font-weight:300;letter-spacing:-.04em;line-height:1;margin:0 0 28px}
+pre{background:var(--espresso);color:var(--cream);padding:20px 22px;overflow-x:auto;line-height:1.6;margin:0 0 14px}
+pre code{border:0;padding:0;font-size:1em}
+
+section{padding-bottom:clamp(56px,7vw,96px)}
+.note{font-size:.9rem;margin-top:20px}
+.callout{border-left:3px solid var(--olive);padding:4px 0 4px 20px;margin:28px 0;max-width:72ch}
+
+/* marquee + footer */
+.marquee{background:var(--roast);color:var(--faded);overflow:hidden;white-space:nowrap;padding:clamp(16px,3vw,36px) 0}
+.marquee .track{display:inline-flex;align-items:center;gap:.25em;font-size:clamp(4rem,13vw,12rem);letter-spacing:-.05em;line-height:1;animation:slide 60s linear infinite}
+.marquee svg{width:.75em;height:.75em;flex:none}
+@keyframes slide{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee .track{animation:none}}
+.foot{display:grid;grid-template-columns:1fr 1fr;background:var(--cream);color:var(--ink)}
+.foot>div{border-right:1px solid var(--line-light)}
+.foot .cell{padding:28px var(--gut);border-bottom:1px solid var(--line-light)}
+.foot .big a{display:block;padding:24px clamp(16px,3vw,40px);border-bottom:1px solid var(--line-light);font-size:clamp(1.4rem,2.6vw,2rem);letter-spacing:-.03em;text-decoration:none}
+.foot .big a:hover{background:rgba(33,28,23,.05)}
+.foot .big a:last-child{border-bottom:0}
+.foot>div:last-child{border-right:0}
+@media (max-width:760px){.foot{grid-template-columns:1fr}.foot>div{border-right:0}}
+</style>
+</head>
+<body>
+
+<!-- Replace yeonooe with your GitHub user name (one find-and-replace fixes every link). -->
+<nav class="nav" aria-label="섹션">
+  <div class="nav-in in">
+    <a class="brand" href="#top">SwitchBench<sup>®</sup></a>
+    <a href="#task">Task</a>
+    <a href="#method">Method</a>
+    <a href="#data">Dataset</a>
+    <a href="#eval">Evaluation</a>
+    <a href="#leaderboard">Leaderboard</a>
+    <a href="#code">Code</a>
+  </div>
+</nav>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="burst">
+      <circle r="44" fill="currentColor"/>
+      <g fill="currentColor">
+        <path id="ray" d="M-7,-40 L-5,-98 L5,-98 L7,-40Z"/>
+        <use href="#ray" transform="rotate(20)"/><use href="#ray" transform="rotate(40)"/><use href="#ray" transform="rotate(60)"/>
+        <use href="#ray" transform="rotate(80)"/><use href="#ray" transform="rotate(100)"/><use href="#ray" transform="rotate(120)"/>
+        <use href="#ray" transform="rotate(140)"/><use href="#ray" transform="rotate(160)"/><use href="#ray" transform="rotate(180)"/>
+        <use href="#ray" transform="rotate(200)"/><use href="#ray" transform="rotate(220)"/><use href="#ray" transform="rotate(240)"/>
+        <use href="#ray" transform="rotate(260)"/><use href="#ray" transform="rotate(280)"/><use href="#ray" transform="rotate(300)"/>
+        <use href="#ray" transform="rotate(320)"/><use href="#ray" transform="rotate(340)"/>
+      </g>
+    </g>
+  </defs>
+</svg>
+
+<main id="top">
+
+<!-- HERO -->
+<header class="hero in" aria-label="SwitchBench">
+  <div class="hrow"><div class="word l">Switch</div></div>
+  <div class="hrow"><div class="word r">Spoken</div></div>
+  <div class="hrow"><div class="word l">Commands</div></div>
+  <div class="hrow"><div class="word r">Mid‑task</div></div>
+  <div class="burst" aria-hidden="true"><svg viewBox="-100 -100 200 200"><use href="#burst"/></svg><span>SWITCH</span></div>
+</header>
+
+<!-- INTRO -->
+<div class="dark in intro">
+  <p class="statement" lang="en">Tell a working robot <span class="inline-burst" aria-hidden="true"><svg viewBox="-100 -100 200 200"><use href="#burst"/></svg></span> “No, not that.” Can it switch?</p>
+  <div class="intro-cols">
+    <div class="text">
+      <p>SwitchBench는 음성으로 조작되는 로봇이 실행 도중 들어온 새 명령으로 전환하는지, 그리고 무관한 말에는 흔들리지 않는지 측정하는 챌린지입니다.</p>
+      <p class="muted">LIBERO 시뮬레이터에서 로봇의 동작과 모델을 확인해볼 수 있습니다. 첫 기록은 최신 음성·행동 모델 ELLSA를 베이스라인으로 재현한 모델입니다.</p>
+      <div class="btns">
+        <a class="btn solid" href="https://github.com/yeonooe/switchbench">GitHub</a>
+        <a class="btn" href="#code">참가 방법</a>
+      </div>
+    </div>
+  </div>
+
+  <figure class="fig" aria-labelledby="hero-cap">
+    <p class="scroll-hint muted">도식을 옆으로 밀어서 보세요</p>
+    <div class="fig-scroll"><svg viewBox="0 28 740 170" role="img" aria-label="User gives a new command mid-task, but the robot finishes the original task" font-family="Inter, Noto Sans KR, sans-serif">
+      <defs>
+        <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(201,120,74,.18)"/><line x1="0" y1="0" x2="0" y2="6" stroke="#C9784A" stroke-width="1.4" opacity=".7"/></pattern>
+      </defs>
+      <text x="0" y="79" font-size="13" fill="#EEEAD3">User</text>
+      <text x="0" y="147" font-size="13" fill="#EEEAD3">Robot</text>
+      <line x1="120" y1="74" x2="700" y2="74" stroke="rgba(238,234,211,.25)"/>
+      <line x1="120" y1="142" x2="700" y2="142" stroke="rgba(238,234,211,.25)"/>
+      <rect x="120" y="60" width="99" height="28" fill="rgba(174,187,106,.16)" stroke="#AEBB6A"/>
+      <text x="169.5" y="79" font-size="13" text-anchor="middle" fill="#EEEAD3">“서랍 열어”</text>
+      <rect x="385" y="60" width="83" height="28" fill="rgba(174,187,106,.16)" stroke="#AEBB6A"/>
+      <text x="385" y="48" font-size="13" fill="#AEBB6A">“아니, 와인병을 캐비닛 위에 올려”</text>
+      <line x1="385" y1="92" x2="385" y2="160" stroke="#AEBB6A" stroke-dasharray="4 4"/>
+      <rect x="219" y="128" width="166" height="28" fill="none" stroke="rgba(238,234,211,.55)"/>
+      <text x="302" y="147" font-size="13" text-anchor="middle" fill="rgba(238,234,211,.75)">서랍으로 이동</text>
+      <rect x="385" y="128" width="273" height="28" fill="url(#hatch)" stroke="#C9784A"/>
+      <text x="521.5" y="147" font-size="13" text-anchor="middle" fill="#EEEAD3">새 명령을 듣고도 서랍을 연다</text>
+      <path d="M658 134l8 8l-8 8l-8-8z" fill="#C9784A"/>
+      <text x="672" y="147" font-size="12" fill="#EEEAD3">A 완료</text>
+      <line x1="120" y1="178" x2="700" y2="178" stroke="rgba(238,234,211,.25)"/>
+      <g font-size="11" fill="rgba(238,234,211,.6)" text-anchor="middle">
+        <text x="120" y="194">0초</text><text x="285.6" y="194">4초</text><text x="451.2" y="194">8초</text><text x="616.8" y="194">12초</text>
+      </g>
+    </svg></div>
+    <figcaption id="hero-cap">
+      <span class="sr-only">베이스라인 ELLSA 결과(dev):</span>
+      <ul class="stats">
+        <li><span class="num">90%</span><span class="lbl">일반 지시 성공 <em>9/10</em></span></li>
+        <li><span class="num">0%</span><span class="lbl">실행 중 명령 전환 <em>0/30</em></span></li>
+        <li><span class="num">90%</span><span class="lbl">명령 무시, 원래 과제 완료 <em>27/30</em></span></li>
+      </ul>
+      <span class="muted stats-src">Baseline ELLSA · dev</span>
+    </figcaption>
+  </figure>
+</div>
+
+<!-- OVERVIEW -->
+<section id="overview" class="cream in">
+  <h2 class="display">Why this challenge</h2>
+  <div class="rows">
+    <div class="row"><div class="k">Starting point</div><p><a href="https://arxiv.org/abs/2510.16756">ELLSA</a>(End-to-end Listen, Look, Speak and Act, ICLR 2026)는 듣고, 보고, 말하고, 행동하는 일을 한 모델에서 동시에 처리합니다. 실행 중 끼어드는 말도 듣습니다.</p></div>
+    <div class="row"><div class="k">The gap</div><p>논문은 실행 중 끼어들기를 <b>정지</b>(“Hold on”)로만 평가했습니다. 정지한 뒤 <b>명령에 따라 행동을 바꾸는</b> 상황은 구현, 평가 모두 되어 있지 않습니다.</p></div>
+    <div class="row"><div class="k">This project</div><p>ELLSA를 공개 체크포인트로 재현하고, 실행 중 명령 전환을 측정하는 과제, 학습·평가 데이터, 평가 코드를 만들었습니다.</p></div>
+  </div>
+</section>
+
+<!-- TASK -->
+<section id="task" class="dark in">
+  <h2 class="display">Task</h2>
+  <p class="muted">로봇은 음성 지시 A를 듣고 작업을 시작합니다. 2, 4, 6초 뒤 사용자가 다시 말하며, 무엇을 말했는지에 따라 해야 할 일이 다릅니다.</p>
+  <div class="cards" style="margin-top:36px">
+    <div class="card olive-card"><div><div class="t">Switch</div><div class="n">dev 30 에피소드</div></div><p>두 번째 발화: 새 지시 B (“와인병을 캐비닛 위에 올려”)<br><b>성공:</b> 발화 이후 과제 B 완수</p></div>
+    <div class="card alt"><div><div class="t">Keep</div><div class="n">dev 10 에피소드</div></div><p>두 번째 발화: 작업과 무관한 질문<br><b>성공:</b> 원래 과제 A 완수</p></div>
+    <div class="card"><div><div class="t">Plain</div><div class="n">dev 10 에피소드</div></div><p>두 번째 발화 없음<br><b>성공:</b> 과제 A 완수 (기본 능력 확인)</p></div>
+  </div>
+  <div class="rows" style="border-top:0">
+    <div class="row"><div class="k">Input</div><p>매 스텝 카메라 이미지 2장(정면, 손목), 로봇 상태, 지금까지 들린 16 kHz 음성. 과제 이름이나 전사문 같은 텍스트는 없고, 앞으로 나올 음성도 들을 수 없습니다.</p></div>
+    <div class="row"><div class="k">Output</div><p>7차원 로봇 동작. 한 번에 여러 스텝 분량을 내도 됩니다.</p></div>
+    <div class="row"><div class="k">Timing</div><p>1 스텝 = 0.1초. 두 번째 발화가 끝난 뒤 300스텝(Plain은 지시 후 300스텝) 안에 성공해야 합니다.</p></div>
+    <div class="row"><div class="k">Success check</div><p>LIBERO 과제 정의(BDDL)의 목표 조건을 매 스텝 확인합니다.</p></div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method" class="cream in">
+  <h2 class="display">Baseline &amp; method</h2>
+  <div class="split">
+    <div>
+      <p class="eyebrow">Baseline B0</p>
+      <h3>ELLSA (zero-shot)</h3>
+      <p>ELLSA 공개 체크포인트를 추가 학습 없이 사용합니다. 모델 호출은 공식 LIBERO 평가와 같습니다(1초 블록마다 동작 10개, 같은 관측 전처리와 음성 특징). 차이는 앞으로 나올 음성을 무음으로 채워 미래 정보를 막은 것 하나입니다. A100 80GB 1장에서 에피소드당 1–4분이 걸립니다.</p>
+      <div class="btns">
+        <a class="btn" href="https://github.com/bytedance/SALMONN/tree/ELLSA">ELLSA 저장소</a>
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/baselines/ellsa_policy.py">베이스라인 코드</a>
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/colab/ELLSA_colab_setup.ipynb">재현 노트북</a>
+      </div>
+    </div>
+    <div>
+      <p class="eyebrow">Proposed P2</p>
+      <h3>학습형 음성 의도 판별 + 재시작</h3>
+      <p>B0의 ELLSA는 실행 중 질문에 모두 대답했고 새 지시의 물체 이름도 알아들었지만, 그 지시를 명령으로 처리한 적은 없습니다. P2는 이 판단을 학습합니다. 고정한 Whisper 인코더와 작은 판별기가 음성만으로 명령 여부를 정하고, 명령이면 ELLSA를 그 발화 기준으로 재시작합니다. 판별기는 SwitchBench-train으로만 학습합니다.</p>
+      <div class="btns">
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/baselines/reset_policies.py">B1·P1·P2 코드</a>
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/switchbench/intent.py">판별기 모델</a>
+      </div>
+    </div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>방법</th><th>실행 중 발화 처리</th><th>학습</th></tr></thead>
+      <tbody>
+        <tr><td>B1</td><td>모든 발화에 재시작</td><td>없음</td></tr>
+        <tr><td>P1 · ablation</td><td>Whisper 받아쓰기 + 동사 규칙으로 판별</td><td>없음</td></tr>
+        <tr><td><b>P2 · proposed</b></td><td>음성 임베딩 + 학습한 판별기</td><td>SwitchBench-train</td></tr>
+        <tr><td>P3 · next</td><td>ELLSA 자체를 중간 상태 전환 시연으로 LoRA 미세조정</td><td>SwitchBench-train + 시뮬레이터 궤적</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="callout"><b class="olive">From P2</b><br>판별기는 dev 전환 명령 30개를 모두 잡아 재시작하며, 질문 10개에서는 잘못 재시작하지 않았습니다. 단 재시작한 ELLSA는 새 과제를 한 번도 완수하지 못했고, 17번은 새 지시만 들었는데도 원래 과제를 끝냈습니다. 같은 과제를 처음 상태에서 시작하면 90% 성공하며, 남은 병목은 ‘명령인지 판단’이 아니라 <b>작업 중간 상태에서 새 지시를 실행하는 능력</b>입니다.</p>
+</section>
+
+<!-- DATA -->
+<section id="data" class="dark in">
+  <h2 class="display">Dataset</h2>
+  <p class="muted">SwitchBench v1.0은 LIBERO-Goal 10개 과제로 만들었습니다. 10개 과제가 같은 부엌 장면과 같은 물체 4개를 공유하므로, 어떤 과제를 하던 중이든 다른 과제를 요청할 수 있습니다. 90개 과제 쌍 모두에서 장면이 같고 시작 시점에 목표가 미리 달성되어 있지 않음을 검증했습니다.</p>
+  <div class="cards two" style="margin-top:36px">
+    <div class="card">
+      <div><p class="eyebrow">Train</p><div class="t">SwitchBench-train</div><div class="n">1,760 에피소드 · 음성 클립 1,828</div></div>
+      <div>
+        <p><b>용도:</b> 모든 참가자가 같은 데이터로 학습합니다.</p>
+        <ul class="muted" style="padding-left:18px;margin:10px 0 0;font-size:.92rem">
+          <li>Switch 960 · Keep 600 · Plain 200, test 과제 쌍 제외</li>
+          <li>명령: <a href="https://huggingface.co/datasets/tsinghua-ee/ELLSA_train_data">ELLSA 학습 데이터</a>의 지시 녹음 828개 + 합성 표현 변형</li>
+          <li>비명령: VoiceAssistant-400K 질문 800개 + 합성 맞장구·장면 질문</li>
+          <li>새로 생성한 초기 상태 400개, 평가셋과 겹치는 녹음 자동 제거</li>
+        </ul>
+        <div class="btns"><a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/scripts/build_train.py">학습 데이터 전처리</a></div>
+      </div>
+    </div>
+    <div class="card alt">
+      <div><p class="eyebrow">Evaluation</p><div class="t">dev · test</div><div class="n">각 50 에피소드</div></div>
+      <div>
+        <p><b>용도:</b> 순위 산정. dev는 공개되어 개발에 쓰고, test는 비공개로 최종 순위에만 씁니다.</p>
+        <ul class="muted" style="padding-left:18px;margin:10px 0 0;font-size:.92rem">
+          <li>dev: Switch 30 · Keep 10 · Plain 10, 초기 상태 0–24</li>
+          <li>test: 같은 구성, 초기 상태 25–49, 다른 과제 쌍과 질문</li>
+          <li>음성: ELLSA 테스트 데이터의 공식 지시 녹음과 음성 질문 녹음</li>
+        </ul>
+        <div class="btns">
+          <a class="btn" href="https://github.com/yeonooe/switchbench/tree/main/data/dev">dev 데이터</a>
+          <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/scripts/build_dataset.py">평가 데이터 전처리</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rows" style="border-top:0">
+    <div class="row"><div class="k">규칙</div><p>학습은 SwitchBench-train과 공개 사전학습 모델(ELLSA, Whisper 등)만 사용합니다. dev는 튜닝에만, test는 최종 평가에 한 번만 씁니다.</p></div>
+    <div class="row"><div class="k">음성 선택</div><p class="muted">합성 음성(Google TTS)을 쓰면 ELLSA가 정상 지시까지 거부했기 때문에(“Action cancelled”), 평가셋은 ELLSA 학습 분포와 같은 공식 녹음을 씁니다. 합성 음성 조건은 강건성 평가용으로 추가할 예정입니다.</p></div>
+  </div>
+</section>
+
+<!-- EVAL -->
+<section id="eval" class="cream in">
+  <h2 class="display">Evaluation</h2>
+  <p class="formula"><span class="olive">Score</span> = (SSR + KSR) / 2</p>
+  <p>새 명령에 반응하는 능력과 무관한 말을 무시하는 능력을 함께 봅니다. 모든 말에 반응하는 모델은 Keep에서, 말을 무시하는 모델은 Switch에서 점수를 잃습니다.</p>
+  <div class="tbl" style="margin-top:28px">
+    <table>
+      <thead><tr><th>지표</th><th>의미</th><th>순위 반영</th></tr></thead>
+      <tbody>
+        <tr><td><b>SSR</b></td><td>Switch 에피소드 중 새 과제 B를 완수한 비율</td><td>Score</td></tr>
+        <tr><td><b>KSR</b></td><td>Keep 에피소드 중 원래 과제 A를 완수한 비율</td><td>Score</td></tr>
+        <tr><td>PSR</td><td>Plain 성공률. 기본 음성 조작 능력</td><td>동점 시 순위 결정 · 60% 미만이면 ⚠</td></tr>
+        <tr><td>Stale completion</td><td>새 명령 이후 원래 과제 A를 끝내버린 비율</td><td>진단</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="split" style="border-top:0">
+    <div>
+      <p class="eyebrow">Evaluator</p>
+      <p>에피소드마다 장면을 정해진 초기 상태로 세팅하고, 음성을 시간에 맞춰 흘려보내며, 모델을 호출하고, 매 스텝 목표 달성 여부를 기록합니다. 결과는 에피소드당 JSON 한 줄로 저장되고, 중단 후 다시 실행하면 이어서 진행합니다. 모든 비율은 Wilson 95% 신뢰구간과 함께 보고합니다.</p>
+      <div class="btns">
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/switchbench/harness.py">평가기</a>
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/switchbench/metrics.py">지표 계산</a>
+        <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/switchbench/policy.py">Policy 인터페이스</a>
+      </div>
+    </div>
+    <div>
+      <p class="eyebrow">Your policy</p>
+      <p>참가자는 평가기와 연결할 때 아래 두 함수만 구현하면 됩니다.</p>
+<pre><code>class MyPolicy(Policy):
+    def reset(self, info): ...       # max_steps, sample_rate, step_sec
+    def act(self, obs, audio, t):    # 카메라·로봇 상태, 지금까지의 음성
+        return {"actions": actions}  # (k, 7) 배열</code></pre>
+<pre><code>python scripts/run_eval.py --data data/dev \
+  --policy my_module:MyPolicy --out results/mine
+python scripts/score.py results/mine/episodes.jsonl</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard" class="brown in">
+  <h2 class="display">Leaderboard</h2>
+  <p class="muted">공식 순위는 비공개 test 분할(50 에피소드)로 매깁니다. 괄호 안은 성공 횟수입니다.</p>
+  <p class="eyebrow" style="margin-top:28px">Test · official</p>
+  <div class="tbl lb">
+    <table class="lb">
+      <thead><tr><th>#</th><th>모델</th><th>Score</th><th>SSR</th><th>KSR</th><th>PSR</th><th>Stale</th></tr></thead>
+      <tbody>
+        <tr class="ours"><td>1</td><td class="m">P2: 학습형 판별 + 재시작<span class="tag">Proposed</span></td><td class="num score">43.3</td><td class="num">7% (2/30)</td><td class="num">80% (8/10)</td><td class="num">70% (7/10)</td><td class="num">50% (15/30)</td></tr>
+        <tr><td>2</td><td class="m">ELLSA (zero-shot)<span class="tag">Baseline</span></td><td class="num score">41.7</td><td class="num">3% (1/30)</td><td class="num">80% (8/10)</td><td class="num">70% (7/10)</td><td class="num">73% (22/30)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="eyebrow" style="margin-top:44px">Dev · public</p>
+  <div class="tbl lb">
+    <table class="lb">
+      <thead><tr><th>#</th><th>모델</th><th>Score</th><th>SSR</th><th>KSR</th><th>PSR</th><th>Stale</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td class="m">ELLSA (zero-shot)<span class="tag">Baseline</span></td><td class="num score">40.0</td><td class="num">0% (0/30)</td><td class="num">80% (8/10)</td><td class="num">90% (9/10)</td><td class="num">90% (27/30)</td></tr>
+        <tr class="ours"><td>1</td><td class="m">P2: 학습형 판별 + 재시작<span class="tag">Proposed</span></td><td class="num score">40.0</td><td class="num">0% (0/30)</td><td class="num">80% (8/10)</td><td class="num">90% (9/10)</td><td class="num">57% (17/30)</td></tr>
+        <tr><td>3</td><td class="m">Noop (움직이지 않음)<span class="tag">Lower bound</span></td><td class="num score">0.0</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+        <tr class="pending"><td>–</td><td class="m">ELLSA + Google TTS 음성<span class="tag">Ablation · 부분 평가</span></td><td class="num">–</td><td class="num">0% (0/6)</td><td class="num">50% (1/2)</td><td class="num">0% (0/1)</td><td class="num">–</td></tr>
+        <tr class="pending"><td>–</td><td class="m">B1: 모든 발화에 재시작<span class="tag">Baseline · 미실행</span></td><td class="num">–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr class="pending"><td>–</td><td class="m">P1: 규칙 판별 + 재시작<span class="tag">Ablation · 미실행</span></td><td class="num">–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note muted">test에서 P2는 B0보다 전환 1번을 더 성공해 1.6점 앞섰습니다. 표본이 작아 두 점수의 95% 신뢰구간은 겹칩니다(SSR 2–21% 대 1–17%). 두 분할 모두에서 P2는 원래 과제를 끝내 버리는 비율을 크게 줄였지만(test 73%→50%, dev 90%→57%), 새 과제 완수는 드뭅니다. dev PSR 90%는 ELLSA 논문의 LIBERO-Goal 성능(86.4%)과 같은 수준입니다. Google TTS 조건은 9개 에피소드에서 중단된 진단용 실행이라 순위에서 제외했습니다.</p>
+  <div class="btns"><a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/scripts/leaderboard.py">리더보드 생성 코드</a></div>
+</section>
+
+<!-- CODE -->
+<section id="code" class="cream in">
+  <h2 class="display">Code &amp; references</h2>
+  <p>저장소를 받아 Colab 노트북으로 환경을 만들고, dev에서 평가한 뒤 정책 코드를 제출하면 test에서 평가합니다.</p>
+  <div class="rows" style="margin-top:28px">
+    <a class="row" href="https://github.com/yeonooe/switchbench"><span class="k">전체 저장소</span><span class="v">yeonooe/switchbench</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/colab/ELLSA_colab_setup.ipynb"><span class="k">환경 구축·재현</span><span class="v">colab/ELLSA_colab_setup.ipynb</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/baselines/ellsa_policy.py"><span class="k">베이스라인 모델</span><span class="v">baselines/ellsa_policy.py</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/scripts/run_eval.py"><span class="k">평가 실행</span><span class="v">scripts/run_eval.py</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/scripts/build_dataset.py"><span class="k">평가 데이터 전처리</span><span class="v">scripts/build_dataset.py · manifest.py · official_audio.py</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/scripts/build_train.py"><span class="k">학습 데이터 전처리</span><span class="v">scripts/build_train.py · train_data.py</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/scripts/train_intent.py"><span class="k">제안 모델 학습</span><span class="v">scripts/train_intent.py · intent.py · colab/SwitchBench_P2.ipynb</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/blob/main/scripts/leaderboard.py"><span class="k">지표·리더보드</span><span class="v">metrics.py · score.py · leaderboard.py</span></a>
+    <a class="row" href="https://github.com/yeonooe/switchbench/tree/main/checks"><span class="k">장면 동등성 검증</span><span class="v">checks/</span></a>
+  </div>
+  <div class="btns" style="margin-top:28px">
+    <a class="btn solid" href="https://github.com/yeonooe/switchbench">GitHub 저장소</a>
+    <a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/colab/ELLSA_colab_setup.ipynb">Colab 노트북</a>
+  </div>
+  <p class="eyebrow" style="margin-top:56px">References</p>
+  <div class="rows">
+    <div class="row"><div class="k">ELLSA</div><p>S. Wang et al., “End-to-end Listen, Look, Speak and Act,” ICLR 2026. <a href="https://arxiv.org/abs/2510.16756">arXiv:2510.16756</a> · <a href="https://github.com/bytedance/SALMONN/tree/ELLSA">code</a> · <a href="https://huggingface.co/tsinghua-ee/ELLSA">checkpoint</a> · <a href="https://huggingface.co/datasets/tsinghua-ee/ELLSA_test_data">test data</a></p></div>
+    <div class="row"><div class="k">LIBERO</div><p>B. Liu et al., “LIBERO: Benchmarking Knowledge Transfer for Lifelong Robot Learning,” NeurIPS 2023 Datasets and Benchmarks. <a href="https://github.com/Lifelong-Robot-Learning/LIBERO">code</a></p></div>
+  </div>
+</section>
+</main>
+
+<div class="marquee" aria-hidden="true">
+  <div class="track">
+    <span>Switch Spoken Commands</span><svg viewBox="-100 -100 200 200"><use href="#burst"/></svg>
+    <span>Switch Spoken Commands</span><svg viewBox="-100 -100 200 200"><use href="#burst"/></svg>
+  </div>
+</div>
+
+<footer class="foot">
+  <div>
+    <div class="cell"><span class="brand" style="font-size:1.6rem">SwitchBench<sup>®</sup></span></div>
+    <div class="cell">
+      <h3 style="margin-bottom:6px">참가하세요</h3>
+      <p class="muted" style="font-size:.9rem">같은 데이터, 같은 평가 코드로 B0의 40.0점을 넘어 보세요.</p>
+      <div class="btns"><a class="btn solid" href="https://github.com/yeonooe/switchbench">GitHub</a></div>
+    </div>
+    <div class="cell muted" style="font-size:.82rem;border-bottom:0">SwitchBench v1.0 · 2026년 10월</div>
+  </div>
+  <div class="big">
+    <a href="#task">Task</a>
+    <a href="#data">Dataset</a>
+    <a href="#eval">Evaluation</a>
+    <a href="#leaderboard">Leaderboard</a>
+  </div>
+</footer>
+</body>
+</html>
