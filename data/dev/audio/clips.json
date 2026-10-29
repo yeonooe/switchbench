@@ -1,0 +1,142 @@
+{
+ "instr_task0.wav": {
+  "text": "Open the middle drawer of the cabinet.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_0.wav",
+  "duration": 2.44,
+  "asr_wer": null
+ },
+ "instr_task2.wav": {
+  "text": "Put the wine bottle on top of the cabinet.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_2.wav",
+  "duration": 2.48,
+  "asr_wer": null
+ },
+ "q_wav_136.wav": {
+  "text": "who is the woman that john edwards had an affair with?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_136.wav",
+  "duration": 2.935,
+  "asr_wer": null
+ },
+ "instr_task1.wav": {
+  "text": "Put the bowl on the stove.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_1.wav",
+  "duration": 1.84,
+  "asr_wer": null
+ },
+ "instr_task8.wav": {
+  "text": "Put the bowl on the plate.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_8.wav",
+  "duration": 1.72,
+  "asr_wer": null
+ },
+ "q_37.wav": {
+  "text": "Who was the first woman to fly solo across the Atlantic Ocean?",
+  "kind": "question:llama_questions.json",
+  "source": "llama_questions/37.wav",
+  "duration": 4.266,
+  "asr_wer": null
+ },
+ "instr_task3.wav": {
+  "text": "Open the top drawer and put the bowl inside.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_3.wav",
+  "duration": 3.08,
+  "asr_wer": null
+ },
+ "q_trivia_qa_488_16k.wav": {
+  "text": "Who created the fictional special agent Will Trent?",
+  "kind": "question:triviaqa.json",
+  "source": "triviaQA/trivia_qa_488_16k.wav",
+  "duration": 3.479,
+  "asr_wer": null
+ },
+ "instr_task5.wav": {
+  "text": "Push the plate to the front of the stove.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_5.wav",
+  "duration": 2.28,
+  "asr_wer": null
+ },
+ "q_wav_388.wav": {
+  "text": "who is the next governor of indiana?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_388.wav",
+  "duration": 2.285,
+  "asr_wer": null
+ },
+ "instr_task4.wav": {
+  "text": "Put the bowl on top of the cabinet.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_4.wav",
+  "duration": 2.44,
+  "asr_wer": null
+ },
+ "instr_task6.wav": {
+  "text": "Put the cream cheese in the bowl.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_6.wav",
+  "duration": 2.24,
+  "asr_wer": null
+ },
+ "q_wav_1169.wav": {
+  "text": "what guitar did kurt cobain?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_1169.wav",
+  "duration": 2.265,
+  "asr_wer": null
+ },
+ "q_wav_1462.wav": {
+  "text": "who has ray allen dated?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_1462.wav",
+  "duration": 1.725,
+  "asr_wer": null
+ },
+ "instr_task9.wav": {
+  "text": "Put the wine bottle on the rack.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_9.wav",
+  "duration": 2.16,
+  "asr_wer": null
+ },
+ "q_wav_1844.wav": {
+  "text": "what did the blackfoot indians speak?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_1844.wav",
+  "duration": 2.355,
+  "asr_wer": null
+ },
+ "instr_task7.wav": {
+  "text": "Turn on the stove.",
+  "kind": "instruction",
+  "source": "libero_eval_speech/libero_goal_7.wav",
+  "duration": 1.48,
+  "asr_wer": null
+ },
+ "q_trivia_qa_389_16k.wav": {
+  "text": "Which tennis player was known as the Rockhampton Rocket?",
+  "kind": "question:triviaqa.json",
+  "source": "triviaQA/trivia_qa_389_16k.wav",
+  "duration": 3.697,
+  "asr_wer": null
+ },
+ "q_wav_1598.wav": {
+  "text": "what kind of products does nike sell?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_1598.wav",
+  "duration": 2.445,
+  "asr_wer": null
+ },
+ "q_wav_539.wav": {
+  "text": "what are all the movies taylor swift has been in?",
+  "kind": "question:web_questions.json",
+  "source": "web_questions/wav_539.wav",
+  "duration": 2.735,
+  "asr_wer": null
+ }
+}
