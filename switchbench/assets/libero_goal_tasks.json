@@ -1,0 +1,120 @@
+[
+ {
+  "id": 0,
+  "language": "open the middle drawer of the cabinet",
+  "bddl": "open_the_middle_drawer_of_the_cabinet",
+  "goal": [
+   [
+    "open",
+    "wooden_cabinet_1_middle_region"
+   ]
+  ]
+ },
+ {
+  "id": 1,
+  "language": "put the bowl on the stove",
+  "bddl": "put_the_bowl_on_the_stove",
+  "goal": [
+   [
+    "on",
+    "akita_black_bowl_1",
+    "flat_stove_1_cook_region"
+   ]
+  ]
+ },
+ {
+  "id": 2,
+  "language": "put the wine bottle on top of the cabinet",
+  "bddl": "put_the_wine_bottle_on_top_of_the_cabinet",
+  "goal": [
+   [
+    "on",
+    "wine_bottle_1",
+    "wooden_cabinet_1_top_side"
+   ]
+  ]
+ },
+ {
+  "id": 3,
+  "language": "open the top drawer and put the bowl inside",
+  "bddl": "open_the_top_drawer_and_put_the_bowl_inside",
+  "goal": [
+   [
+    "in",
+    "akita_black_bowl_1",
+    "wooden_cabinet_1_top_region"
+   ]
+  ]
+ },
+ {
+  "id": 4,
+  "language": "put the bowl on top of the cabinet",
+  "bddl": "put_the_bowl_on_top_of_the_cabinet",
+  "goal": [
+   [
+    "on",
+    "akita_black_bowl_1",
+    "wooden_cabinet_1_top_side"
+   ]
+  ]
+ },
+ {
+  "id": 5,
+  "language": "push the plate to the front of the stove",
+  "bddl": "push_the_plate_to_the_front_of_the_stove",
+  "goal": [
+   [
+    "on",
+    "plate_1",
+    "main_table_stove_front_region"
+   ]
+  ]
+ },
+ {
+  "id": 6,
+  "language": "put the cream cheese in the bowl",
+  "bddl": "put_the_cream_cheese_in_the_bowl",
+  "goal": [
+   [
+    "on",
+    "cream_cheese_1",
+    "akita_black_bowl_1"
+   ]
+  ]
+ },
+ {
+  "id": 7,
+  "language": "turn on the stove",
+  "bddl": "turn_on_the_stove",
+  "goal": [
+   [
+    "turnon",
+    "flat_stove_1"
+   ]
+  ]
+ },
+ {
+  "id": 8,
+  "language": "put the bowl on the plate",
+  "bddl": "put_the_bowl_on_the_plate",
+  "goal": [
+   [
+    "on",
+    "akita_black_bowl_1",
+    "plate_1"
+   ]
+  ]
+ },
+ {
+  "id": 9,
+  "language": "put the wine bottle on the rack",
+  "bddl": "put_the_wine_bottle_on_the_rack",
+  "goal": [
+   [
+    "on",
+    "wine_bottle_1",
+    "wine_rack_1_top_region"
+   ]
+  ]
+ }
+]
