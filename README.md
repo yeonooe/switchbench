@@ -97,7 +97,18 @@ split trains a speech gate (audio + labels) or a policy (run the episodes in the
 call mirrors the official LIBERO evaluation (same flags, 1 s blocks of 10 actions); the only
 change is that the future audio is replaced by silence so the policy cannot look ahead.
 
-## Leaderboard (dev, v0 official recordings)
+## Leaderboard
+
+### Test (official ranking, hidden split)
+
+| # | model | training | Score | SSR (switch) | KSR (keep) | PSR (plain) | stale completion |
+|---|---|---|---|---|---|---|---|
+| 1 | P2: learned speech intent gate + restart (proposed) | SwitchBench-train (gate) | **43.3** | 6.7% (2/30) | 80.0% (8/10) | 70.0% (7/10) | 50.0% (15/30) |
+| 2 | B0: ELLSA (public checkpoint) | none (zero-shot) | 41.7 | 3.3% (1/30) | 80.0% (8/10) | 70.0% (7/10) | 73.3% (22/30) |
+
+P2 leads by one extra successful switch; the 95% intervals overlap (SSR 2–21% vs 1–17%).
+
+### Dev (public)
 
 | # | model | training | Score | SSR (switch) | KSR (keep) | PSR (plain) | stale completion |
 |---|---|---|---|---|---|---|---|

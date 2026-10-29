@@ -92,7 +92,16 @@ h3{font-size:clamp(1.4rem,2.6vw,2rem);font-weight:400;letter-spacing:-.03em;line
 .fig{margin:clamp(40px,6vw,72px) 0 0;border-top:1px solid var(--line-dark);padding-top:24px}
 .fig-scroll{overflow-x:auto}
 .fig svg{width:100%;min-width:620px;height:auto;display:block}
-.fig figcaption{font-size:.9rem;margin-top:12px;max-width:70ch}
+.fig figcaption{font-size:.9rem;margin-top:20px}
+.stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-dark)}
+.stats li{padding:16px 16px 4px 0;display:flex;flex-direction:column;gap:6px}
+.stats li+li{padding-left:16px;border-left:1px solid var(--line-dark)}
+.stats .num{font-size:clamp(1.8rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1;color:var(--olive-light)}
+.stats .lbl{font-size:.88rem}
+.stats em{font-style:normal;opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
+.stats-src{display:block;margin-top:12px;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){.stats{grid-template-columns:1fr}.stats li+li{padding-left:0;border-left:0;border-top:1px solid var(--line-dark)}}
 .scroll-hint{display:none;font-size:.8rem;margin-bottom:6px}
 @media (max-width:640px){.scroll-hint{display:block}}
 
@@ -236,7 +245,7 @@ section{padding-bottom:clamp(56px,7vw,96px)}
   <div class="intro-cols">
     <div class="text">
       <p>SwitchBench는 음성으로 조작되는 로봇이 실행 도중 들어온 새 명령으로 전환하는지, 그리고 무관한 말에는 흔들리지 않는지 측정하는 챌린지입니다.</p>
-      <p class="muted">LIBERO 시뮬레이터에서 누구나 같은 데이터와 같은 평가 코드로 겨룹니다. 최신 음성·행동 모델 ELLSA를 베이스라인으로 재현해 첫 기록을 남겼습니다.</p>
+      <p class="muted">LIBERO 시뮬레이터에서 로봇의 동작과 모델을 확인해볼 수 있습니다. 첫 기록은 최신 음성·행동 모델 ELLSA를 베이스라인으로 재현한 모델입니다.</p>
       <div class="btns">
         <a class="btn solid" href="https://github.com/yeonooe/switchbench">GitHub</a>
         <a class="btn" href="#code">참가 방법</a>
@@ -246,12 +255,12 @@ section{padding-bottom:clamp(56px,7vw,96px)}
 
   <figure class="fig" aria-labelledby="hero-cap">
     <p class="scroll-hint muted">도식을 옆으로 밀어서 보세요</p>
-    <div class="fig-scroll"><svg viewBox="0 28 740 170" role="img" aria-label="사용자가 4초 뒤 새 명령을 말해도 로봇은 원래 과제를 끝까지 수행한다" font-family="Inter, Noto Sans KR, sans-serif">
+    <div class="fig-scroll"><svg viewBox="0 28 740 170" role="img" aria-label="User gives a new command mid-task, but the robot finishes the original task" font-family="Inter, Noto Sans KR, sans-serif">
       <defs>
         <pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="rgba(201,120,74,.18)"/><line x1="0" y1="0" x2="0" y2="6" stroke="#C9784A" stroke-width="1.4" opacity=".7"/></pattern>
       </defs>
-      <text x="0" y="79" font-size="13" fill="#EEEAD3">사용자</text>
-      <text x="0" y="147" font-size="13" fill="#EEEAD3">로봇 (ELLSA)</text>
+      <text x="0" y="79" font-size="13" fill="#EEEAD3">User</text>
+      <text x="0" y="147" font-size="13" fill="#EEEAD3">Robot</text>
       <line x1="120" y1="74" x2="700" y2="74" stroke="rgba(238,234,211,.25)"/>
       <line x1="120" y1="142" x2="700" y2="142" stroke="rgba(238,234,211,.25)"/>
       <rect x="120" y="60" width="99" height="28" fill="rgba(174,187,106,.16)" stroke="#AEBB6A"/>
@@ -270,7 +279,15 @@ section{padding-bottom:clamp(56px,7vw,96px)}
         <text x="120" y="194">0초</text><text x="285.6" y="194">4초</text><text x="451.2" y="194">8초</text><text x="616.8" y="194">12초</text>
       </g>
     </svg></div>
-    <figcaption class="muted" id="hero-cap">베이스라인 ELLSA는 일반 음성 지시는 90% 수행했지만, 실행 중 새 명령으로는 30번 중 한 번도 전환하지 못했습니다. 27번은 명령을 무시하고 원래 과제를 끝냈습니다.</figcaption>
+    <figcaption id="hero-cap">
+      <span class="sr-only">베이스라인 ELLSA 결과(dev):</span>
+      <ul class="stats">
+        <li><span class="num">90%</span><span class="lbl">일반 지시 성공 <em>9/10</em></span></li>
+        <li><span class="num">0%</span><span class="lbl">실행 중 명령 전환 <em>0/30</em></span></li>
+        <li><span class="num">90%</span><span class="lbl">명령 무시, 원래 과제 완료 <em>27/30</em></span></li>
+      </ul>
+      <span class="muted stats-src">Baseline ELLSA · dev</span>
+    </figcaption>
   </figure>
 </div>
 
@@ -278,9 +295,9 @@ section{padding-bottom:clamp(56px,7vw,96px)}
 <section id="overview" class="cream in">
   <h2 class="display">Why this challenge</h2>
   <div class="rows">
-    <div class="row"><div class="k">출발점</div><p><a href="https://arxiv.org/abs/2510.16756">ELLSA</a>(End-to-end Listen, Look, Speak and Act, ICLR 2026)는 듣고, 보고, 말하고, 행동하는 일을 한 모델에서 동시에 처리합니다. 실행 중 끼어드는 말도 듣습니다.</p></div>
-    <div class="row"><div class="k">빈틈</div><p>논문은 실행 중 끼어들기를 <b>정지</b>(“Hold on”)로만 평가했습니다. 정지한 뒤 <b>다른 일로 바꾸는</b> 상황은 구현도 평가도 되어 있지 않습니다.</p></div>
-    <div class="row"><div class="k">이 프로젝트</div><p>ELLSA를 공개 체크포인트로 재현하고, 실행 중 명령 전환을 측정하는 과제, 학습·평가 데이터, 평가 코드를 만들어 첫 기록을 남겼습니다. 참가자는 같은 조건에서 이 기록을 넘어서면 됩니다.</p></div>
+    <div class="row"><div class="k">Starting point</div><p><a href="https://arxiv.org/abs/2510.16756">ELLSA</a>(End-to-end Listen, Look, Speak and Act, ICLR 2026)는 듣고, 보고, 말하고, 행동하는 일을 한 모델에서 동시에 처리합니다. 실행 중 끼어드는 말도 듣습니다.</p></div>
+    <div class="row"><div class="k">The gap</div><p>논문은 실행 중 끼어들기를 <b>정지</b>(“Hold on”)로만 평가했습니다. 정지한 뒤 <b>명령에 따라 행동을 바꾸는</b> 상황은 구현, 평가 모두 되어 있지 않습니다.</p></div>
+    <div class="row"><div class="k">This project</div><p>ELLSA를 공개 체크포인트로 재현하고, 실행 중 명령 전환을 측정하는 과제, 학습·평가 데이터, 평가 코드를 만들었습니다.</p></div>
   </div>
 </section>
 
@@ -294,10 +311,10 @@ section{padding-bottom:clamp(56px,7vw,96px)}
     <div class="card"><div><div class="t">Plain</div><div class="n">dev 10 에피소드</div></div><p>두 번째 발화 없음<br><b>성공:</b> 과제 A 완수 (기본 능력 확인)</p></div>
   </div>
   <div class="rows" style="border-top:0">
-    <div class="row"><div class="k">입력</div><p>매 스텝 카메라 이미지 2장(정면, 손목), 로봇 상태, 지금까지 들린 16 kHz 음성. 과제 이름이나 전사문 같은 텍스트는 없고, 앞으로 나올 음성도 들을 수 없습니다.</p></div>
-    <div class="row"><div class="k">출력</div><p>7차원 로봇 동작. 한 번에 여러 스텝 분량을 내도 됩니다.</p></div>
-    <div class="row"><div class="k">시간</div><p>1 스텝 = 0.1초. 두 번째 발화가 끝난 뒤 300스텝(Plain은 지시 후 300스텝) 안에 성공해야 합니다.</p></div>
-    <div class="row"><div class="k">판정</div><p>LIBERO 과제 정의(BDDL)의 목표 조건을 매 스텝 확인합니다.</p></div>
+    <div class="row"><div class="k">Input</div><p>매 스텝 카메라 이미지 2장(정면, 손목), 로봇 상태, 지금까지 들린 16 kHz 음성. 과제 이름이나 전사문 같은 텍스트는 없고, 앞으로 나올 음성도 들을 수 없습니다.</p></div>
+    <div class="row"><div class="k">Output</div><p>7차원 로봇 동작. 한 번에 여러 스텝 분량을 내도 됩니다.</p></div>
+    <div class="row"><div class="k">Timing</div><p>1 스텝 = 0.1초. 두 번째 발화가 끝난 뒤 300스텝(Plain은 지시 후 300스텝) 안에 성공해야 합니다.</p></div>
+    <div class="row"><div class="k">Success check</div><p>LIBERO 과제 정의(BDDL)의 목표 조건을 매 스텝 확인합니다.</p></div>
   </div>
 </section>
 
@@ -336,7 +353,7 @@ section{padding-bottom:clamp(56px,7vw,96px)}
       </tbody>
     </table>
   </div>
-  <p class="callout"><b class="olive">P2에서 알게 된 것.</b> 판별기는 dev 전환 명령 30개를 모두 잡아 재시작했고, 질문 10개에서는 한 번도 잘못 재시작하지 않았습니다. 그런데 재시작한 ELLSA는 새 과제를 한 번도 완수하지 못했고, 17번은 새 지시만 들었는데도 원래 과제를 끝냈습니다. 같은 과제를 처음 상태에서 시작하면 90% 성공합니다. 남은 병목은 ‘명령인지 판단’이 아니라 <b>작업 중간 상태에서 새 지시를 실행하는 능력</b>입니다.</p>
+  <p class="callout"><b class="olive">From P2</b><br>판별기는 dev 전환 명령 30개를 모두 잡아 재시작하며, 질문 10개에서는 잘못 재시작하지 않았습니다. 단 재시작한 ELLSA는 새 과제를 한 번도 완수하지 못했고, 17번은 새 지시만 들었는데도 원래 과제를 끝냈습니다. 같은 과제를 처음 상태에서 시작하면 90% 성공하며, 남은 병목은 ‘명령인지 판단’이 아니라 <b>작업 중간 상태에서 새 지시를 실행하는 능력</b>입니다.</p>
 </section>
 
 <!-- DATA -->
@@ -422,8 +439,19 @@ python scripts/score.py results/mine/episodes.jsonl</code></pre>
 <!-- LEADERBOARD -->
 <section id="leaderboard" class="brown in">
   <h2 class="display">Leaderboard</h2>
-  <p class="muted">dev 분할 기준이며, 괄호 안은 성공 횟수입니다. 공식 순위는 비공개 test 분할로 매깁니다(B0·P2 평가 진행 중).</p>
-  <div class="tbl lb" style="margin-top:28px">
+  <p class="muted">공식 순위는 비공개 test 분할(50 에피소드)로 매깁니다. 괄호 안은 성공 횟수입니다.</p>
+  <p class="eyebrow" style="margin-top:28px">Test · official</p>
+  <div class="tbl lb">
+    <table class="lb">
+      <thead><tr><th>#</th><th>모델</th><th>Score</th><th>SSR</th><th>KSR</th><th>PSR</th><th>Stale</th></tr></thead>
+      <tbody>
+        <tr class="ours"><td>1</td><td class="m">P2: 학습형 판별 + 재시작<span class="tag">Proposed</span></td><td class="num score">43.3</td><td class="num">7% (2/30)</td><td class="num">80% (8/10)</td><td class="num">70% (7/10)</td><td class="num">50% (15/30)</td></tr>
+        <tr><td>2</td><td class="m">ELLSA (zero-shot)<span class="tag">Baseline</span></td><td class="num score">41.7</td><td class="num">3% (1/30)</td><td class="num">80% (8/10)</td><td class="num">70% (7/10)</td><td class="num">73% (22/30)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="eyebrow" style="margin-top:44px">Dev · public</p>
+  <div class="tbl lb">
     <table class="lb">
       <thead><tr><th>#</th><th>모델</th><th>Score</th><th>SSR</th><th>KSR</th><th>PSR</th><th>Stale</th></tr></thead>
       <tbody>
@@ -436,7 +464,7 @@ python scripts/score.py results/mine/episodes.jsonl</code></pre>
       </tbody>
     </table>
   </div>
-  <p class="note muted">PSR 90%는 ELLSA 논문의 LIBERO-Goal 성능(86.4%)과 같은 수준으로, 평가 경로가 공식 평가와 같게 동작함을 보여줍니다. B0와 P2는 Score와 PSR이 모두 같아 공동 1위입니다. Google TTS 조건은 9개 에피소드에서 중단된 진단용 실행이라 순위에서 제외했습니다.</p>
+  <p class="note muted">test에서 P2는 B0보다 전환 1번을 더 성공해 1.6점 앞섰습니다. 표본이 작아 두 점수의 95% 신뢰구간은 겹칩니다(SSR 2–21% 대 1–17%). 두 분할 모두에서 P2는 원래 과제를 끝내 버리는 비율을 크게 줄였지만(test 73%→50%, dev 90%→57%), 새 과제 완수는 드뭅니다. dev PSR 90%는 ELLSA 논문의 LIBERO-Goal 성능(86.4%)과 같은 수준입니다. Google TTS 조건은 9개 에피소드에서 중단된 진단용 실행이라 순위에서 제외했습니다.</p>
   <div class="btns"><a class="btn" href="https://github.com/yeonooe/switchbench/blob/main/scripts/leaderboard.py">리더보드 생성 코드</a></div>
 </section>
 
