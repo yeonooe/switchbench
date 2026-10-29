@@ -33,6 +33,7 @@ b{font-weight:500}
 
 /* surfaces */
 .dark{background:var(--espresso);color:var(--cream)}
+.dark.roast{background:var(--roast)}
 .brown{background:var(--bean);color:var(--cream)}
 .cream{background:var(--paper);color:var(--ink)}
 .muted{color:var(--ink-soft)}
@@ -203,6 +204,7 @@ section{padding-bottom:clamp(56px,7vw,96px)}
   <div class="nav-in in">
     <a class="brand" href="#top">SwitchBench<sup>®</sup></a>
     <a href="#task">Task</a>
+    <a href="#pipeline">Pipeline</a>
     <a href="#method">Method</a>
     <a href="#data">Dataset</a>
     <a href="#eval">Evaluation</a>
@@ -293,7 +295,7 @@ section{padding-bottom:clamp(56px,7vw,96px)}
 
 <!-- OVERVIEW -->
 <section id="overview" class="cream in">
-  <h2 class="display">Why this challenge</h2>
+  <h2 class="display">Challenge description</h2>
   <div class="rows">
     <div class="row"><div class="k">Starting point</div><p><a href="https://arxiv.org/abs/2510.16756">ELLSA</a>(End-to-end Listen, Look, Speak and Act, ICLR 2026)는 듣고, 보고, 말하고, 행동하는 일을 한 모델에서 동시에 처리합니다. 실행 중 끼어드는 말도 듣습니다.</p></div>
     <div class="row"><div class="k">The gap</div><p>논문은 실행 중 끼어들기를 <b>정지</b>(“Hold on”)로만 평가했습니다. 정지한 뒤 <b>명령에 따라 행동을 바꾸는</b> 상황은 구현, 평가 모두 되어 있지 않습니다.</p></div>
@@ -315,6 +317,90 @@ section{padding-bottom:clamp(56px,7vw,96px)}
     <div class="row"><div class="k">Output</div><p>7차원 로봇 동작. 한 번에 여러 스텝 분량을 내도 됩니다.</p></div>
     <div class="row"><div class="k">Timing</div><p>1 스텝 = 0.1초. 두 번째 발화가 끝난 뒤 300스텝(Plain은 지시 후 300스텝) 안에 성공해야 합니다.</p></div>
     <div class="row"><div class="k">Success check</div><p>LIBERO 과제 정의(BDDL)의 목표 조건을 매 스텝 확인합니다.</p></div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" class="dark roast in">
+  <h2 class="display">Pipeline</h2>
+  <p class="muted">평가기가 에피소드를 세팅하고 음성을 흘려보내면, 참가자 정책이 듣고 판단해 동작을 내고, 시뮬레이터가 실행한 결과를 매 스텝 채점합니다. 점선 상자 안이 참가자가 자유롭게 바꾸는 부분이며, 그림은 제안 방법 P2입니다.</p>
+  <figure class="fig" style="border-top:0;padding-top:8px" aria-labelledby="pipe-cap">
+    <p class="scroll-hint muted">도식을 옆으로 밀어서 보세요</p>
+    <div class="fig-scroll"><svg viewBox="0 -16 1100 344" style="min-width:880px" role="img" aria-labelledby="pipe-cap" font-family="Inter, Noto Sans KR, sans-serif">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#EEEAD3"/></marker>
+        <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#AEBB6A"/></marker>
+      </defs>
+      <g fill="none" stroke="rgba(238,234,211,.5)">
+        <rect x="20" y="30" width="180" height="274"/>
+        <rect x="260" y="56" width="140" height="74"/>
+        <rect x="260" y="214" width="500" height="90"/>
+        <rect x="830" y="40" width="250" height="100"/>
+        <rect x="830" y="200" width="250" height="104"/>
+      </g>
+      <rect x="240" y="14" width="540" height="312" fill="none" stroke="#AEBB6A" stroke-dasharray="6 5"/>
+      <rect x="430" y="56" width="170" height="74" fill="rgba(174,187,106,.16)" stroke="#AEBB6A"/>
+      <path d="M680 59L714 93L680 127L646 93Z" fill="none" stroke="#AEBB6A"/>
+      <g font-size="10" letter-spacing="1.2" fill="rgba(238,234,211,.6)">
+        <text x="36" y="54">EPISODE · EVALUATOR</text>
+        <text x="846" y="62">ENVIRONMENT</text>
+        <text x="846" y="222">SCORING</text>
+        <text x="276" y="236">SPEECH + VISION + ACTION</text>
+      </g>
+      <text x="256" y="38" font-size="10" letter-spacing="1.2" fill="#AEBB6A">PARTICIPANT POLICY · P2 SHOWN</text>
+      <g fill="#EEEAD3">
+        <text x="36" y="80" font-size="16">Audio + scene</text>
+        <text x="276" y="86" font-size="16">VAD</text>
+        <text x="446" y="86" font-size="16">Intent gate</text>
+        <text x="680" y="97" font-size="11" text-anchor="middle">command?</text>
+        <text x="276" y="262" font-size="18">ELLSA</text>
+        <text x="846" y="88" font-size="16">LIBERO simulator</text>
+        <text x="846" y="248" font-size="16">Goal check</text>
+      </g>
+      <g font-size="11.5" fill="rgba(238,234,211,.72)">
+        <text x="36" y="112">Instruction A</text>
+        <text x="36" y="134">gap 2 / 4 / 6 s</text>
+        <text x="36" y="156">then new command B,</text>
+        <text x="36" y="174">a question, or nothing</text>
+        <text x="36" y="216">16 kHz, 0.1 s per step</text>
+        <text x="36" y="238">only audio heard so far</text>
+        <text x="36" y="282">fixed initial state</text>
+        <text x="276" y="108">new utterance ends</text>
+        <text x="446" y="108">Whisper-base + MLP</text>
+        <text x="276" y="286">speech + 2 cameras + state → 10 actions per 1 s block</text>
+        <text x="846" y="110">runs 7-D actions</text>
+        <text x="846" y="270">BDDL goal every step</text>
+        <text x="846" y="290">→ SSR, KSR → Score</text>
+      </g>
+      <text x="748" y="240" font-size="11.5" text-anchor="end" fill="#AEBB6A">↻ restart from new utterance</text>
+      <g stroke="#EEEAD3" fill="none" stroke-width="1.2">
+        <path d="M200 160H222V93H256" marker-end="url(#ah)"/>
+        <path d="M222 160V259H256" marker-end="url(#ah)"/>
+        <path d="M400 93H426" marker-end="url(#ah)"/>
+        <path d="M600 93H642" marker-end="url(#ah)"/>
+        <path d="M110 30V2H955V36" marker-end="url(#ah)"/>
+        <path d="M762 240H795V75H826" marker-end="url(#ah)"/>
+        <path d="M828 122H815V285H764" marker-end="url(#ah)"/>
+        <path d="M955 140V196" marker-end="url(#ah)"/>
+      </g>
+      <path d="M714 93H740V210" fill="none" stroke="#AEBB6A" stroke-width="1.2" marker-end="url(#ao)"/>
+      <path d="M680 127V210" fill="none" stroke="rgba(238,234,211,.6)" stroke-width="1.2" stroke-dasharray="4 4" marker-end="url(#ah)"/>
+      <g font-size="11" fill="rgba(238,234,211,.75)">
+        <text x="520" y="-4" text-anchor="middle">initial state</text>
+        <text x="720" y="86" fill="#AEBB6A">yes</text>
+        <text x="674" y="172" text-anchor="end">no · keep going</text>
+        <text transform="translate(791 200) rotate(-90)" text-anchor="middle">actions</text>
+        <text transform="translate(826 210) rotate(-90)" text-anchor="middle">images · state</text>
+      </g>
+    </svg></div>
+    <figcaption class="muted" id="pipe-cap">SwitchBench 파이프라인. 평가기가 장면과 음성을 준비하고, 참가자 정책(P2: VAD → 의도 판별기 → ELLSA)이 동작을 내며, LIBERO 시뮬레이터 결과를 BDDL 목표로 매 스텝 채점합니다.</figcaption>
+  </figure>
+  <div class="rows" style="margin-top:28px">
+    <div class="row"><div class="k">1 · Setup</div><p>평가기가 장면을 정해진 초기 상태로 세팅하고, 지시 A와 두 번째 발화를 하나의 16 kHz 음성 스트림으로 조립합니다. <code>harness.py</code> · <code>audio.py</code></p></div>
+    <div class="row"><div class="k">2 · Listen</div><p>정책은 매 스텝 지금까지 들린 음성만 받습니다. P2는 에너지 VAD로 새 발화가 끝난 시점을 찾습니다. <code>reset_policies.py</code></p></div>
+    <div class="row"><div class="k">3 · Decide</div><p>의도 판별기(고정 Whisper-base 인코더 + MLP, SwitchBench-train으로 학습)가 그 발화가 명령인지 정합니다. 명령이면 ELLSA를 그 발화부터 다시 시작합니다. <code>intent.py</code></p></div>
+    <div class="row"><div class="k">4 · Act</div><p>ELLSA가 음성, 카메라 2장, 로봇 상태로 1초마다 동작 10개를 내고, LIBERO 시뮬레이터가 실행합니다. <code>ellsa_policy.py</code></p></div>
+    <div class="row"><div class="k">5 · Score</div><p>매 스텝 BDDL 목표를 확인해 성공을 기록하고, 에피소드 결과로 SSR·KSR·Score를 계산합니다. <code>tasks.py</code> · <code>metrics.py</code></p></div>
   </div>
 </section>
 
@@ -398,7 +484,7 @@ section{padding-bottom:clamp(56px,7vw,96px)}
 
 <!-- EVAL -->
 <section id="eval" class="cream in">
-  <h2 class="display">Evaluation</h2>
+  <h2 class="display">Evaluation setup</h2>
   <p class="formula"><span class="olive">Score</span> = (SSR + KSR) / 2</p>
   <p>새 명령에 반응하는 능력과 무관한 말을 무시하는 능력을 함께 봅니다. 모든 말에 반응하는 모델은 Keep에서, 말을 무시하는 모델은 Switch에서 점수를 잃습니다.</p>
   <div class="tbl" style="margin-top:28px">
@@ -470,7 +556,7 @@ python scripts/score.py results/mine/episodes.jsonl</code></pre>
 
 <!-- CODE -->
 <section id="code" class="cream in">
-  <h2 class="display">Code &amp; references</h2>
+  <h2 class="display">References</h2>
   <p>저장소를 받아 Colab 노트북으로 환경을 만들고, dev에서 평가한 뒤 정책 코드를 제출하면 test에서 평가합니다.</p>
   <div class="rows" style="margin-top:28px">
     <a class="row" href="https://github.com/yeonooe/switchbench"><span class="k">전체 저장소</span><span class="v">yeonooe/switchbench</span></a>
